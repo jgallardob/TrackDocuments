@@ -84,31 +84,32 @@ async def download_document(doc_id: str, current_user: dict = Depends(get_curren
         headers={"Content-Disposition": f"attachment; filename=PROT_{doc['original_name']}"}
     )
 
-@app.delete("/files/{doc_id}")
+@app.delete("/delete/{doc_id}")
 async def invalidate_document(doc_id: str, current_user: dict = Depends(get_current_user_from_cookie)):
     """Soft-Invalidation: Invalida el acceso sin borrar el binario físico."""
     meta = get_metadata()
     if doc_id not in meta:
         raise HTTPException(status_code=404, detail="No encontrado")
     
-    meta[doc_id]["is_valid"] = False
+    doc = meta[doc_id]
+    doc["is_valid"] = False
+    
+    # Auditoría de invalidación
+    timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    doc["invalidated_at"] = timestamp
+    doc["invalidated_by"] = current_user["user_id"]
+    
     save_metadata(meta)
-    return {"message": "Documento invalidado para acceso externo"}
+    print(f"[AUDIT] Documento {doc_id} INVALIDADO por {current_user['user_id']}")
+    return {"message": "Documento invalidado correctamente"}
 
 @app.post("/login")
 async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     """Autentica al usuario y emite un JWT en Cookie HttpOnly."""
     users = load_users_db()
-    print(f"[DEBUG] Intentando login para: '{form_data.username}'. Usuarios cargados: {len(users)}")
-    
     user = next((u for u in users if u["username"] == form_data.username), None)
     
-    if not user:
-        print(f"[DEBUG] Usuario '{form_data.username}' no encontrado.")
-        raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
-        
-    if not verify_password(form_data.password, user["hashed_password"]):
-        print(f"[DEBUG] Contraseña incorrecta para usuario: {form_data.username}")
+    if not user or not verify_password(form_data.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
         
     access_token = create_access_token(subject=user["username"])

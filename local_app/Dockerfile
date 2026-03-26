@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Asegurar directorio de bóveda (punto de montaje de volumen)
+RUN mkdir -p /app/vault
+
 COPY . .
 
 WORKDIR /app/local_app
