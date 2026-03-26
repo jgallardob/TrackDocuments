@@ -1,0 +1,10 @@
+local_app/vault/
+vault/
+*.blob
+metadata.json
+**/*.pyc
+**/__pycache__
+.git
+.env
+*.pem
+*.tfstate
