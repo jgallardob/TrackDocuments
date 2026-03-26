@@ -12,9 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Directorio para la bóveda (volumen persistente recomendado)
-RUN mkdir -p /app/vault
-
-EXPOSE 8000
+WORKDIR /app/local_app
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
