@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  fastapi_app:
+    build: 
+      context: .
+      dockerfile: local_app/Dockerfile
+    container_name: dlp_fastapi
+    restart: unless-stopped
+    volumes:
+      - ./constants.txt:/app/constants.txt:ro
+      - ./users_db.json:/app/users_db.json:ro
+      - ./local_app/vault:/app/vault
+    expose:
+      - "8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  nginx_proxy:
+    image: nginx:alpine
+    container_name: dlp_nginx
+    restart: unless-stopped
+    volumes:
+      - ./local_app/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./local_app/frontend:/usr/share/nginx/html:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      - fastapi_app
