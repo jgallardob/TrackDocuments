@@ -146,16 +146,17 @@ venv.bak/
 
 #Vault files
 local_app/vault
+vault/
+*.blob
+metadata.json
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
+# AWS / Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.pem
+*.zip
+!pymupdf_layer_amazonlinux.zip # Permitimos el zip de la layer si es redistribuible o requerido
 
 # mypy
 .mypy_cache/
