@@ -89,12 +89,30 @@ async def upload_document(
 
 @app.get("/files")
 async def list_documents(current_user: dict = Depends(get_current_user_from_cookie)):
-    """Listado simplificado de archivos para PR#1."""
-    meta = get_metadata()
-    files_list = []
-    for k, v in meta.items():
-        if isinstance(v, dict):
-            files_list.append({"id": k, "name": v["original_name"], "is_valid": v.get("is_valid", True)})
-        else:
-            files_list.append({"id": k, "name": v})
-    return {"files": files_list}
+    """Retorna listado maestro y el sub-árbol de auditoría local para el autor actual."""
+    try:
+        meta = get_metadata()
+        files_list = []
+        audit_tree = []
+        
+        for k, v in meta.items():
+            if isinstance(v, dict):
+                files_list.append({
+                    "id": k, 
+                    "name": v["original_name"],
+                    "is_valid": v.get("is_valid", True)
+                })
+                # Filtramos el arbol solo a lo que el usuario subió (Ownership)
+                if v.get("uploaded_by") == current_user["user_id"]:
+                    audit_tree.append({
+                        "id": k, 
+                        "name": v["original_name"], 
+                        "is_valid": v.get("is_valid", True),
+                        "downloads": v.get("downloads", [])
+                    })
+            else:
+                files_list.append({"id": k, "name": v})
+                
+        return {"files": files_list, "audit_tree": audit_tree}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error leyendo el registro del vault")
