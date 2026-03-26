@@ -1,0 +1,23 @@
+[
+    {
+        "username": "admin",
+        "hashed_password": "$2b$12$A5v/K.thgGE8IbsuQEGjdu0RYSug2mR8BokSq2NAb3Oo8XqHCXoZq",
+        "user_id": "USR-1001-ADM",
+        "role": "admin",
+        "status": "active"
+    },
+    {
+        "username": "user1",
+        "hashed_password": "$2b$12$nFTLVup/jaklm6pKoiw8/OyVoU5letIto28CwKWO4FWYv8YDZBESa",
+        "user_id": "USR-2002-REG",
+        "role": "user",
+        "status": "active"
+    },
+    {
+        "username": "user2_disabled",
+        "hashed_password": "$2b$12$tJ4P.ii..phm6VT.co2Ax.KG/7JkNSeczoqr5Ipv7KIU1.Q1Dqxhy",
+        "user_id": "USR-3003-DIS",
+        "role": "user",
+        "status": "disabled"
+    }
+]
