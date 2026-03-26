@@ -144,6 +144,9 @@ ENV/
 env.bak/
 venv.bak/
 
+#Vault files
+local_app/vault
+
 # Spyder project settings
 .spyderproject
 .spyproject
