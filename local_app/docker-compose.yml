@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  dlp_fastapi:
+    build: .
+    container_name: dlp_track_documents
+    environment:
+      - VAULT_DIR=/app/vault
+      - JWT_SECRET=track_docs_super_secret_2026
+      - USERS_DB_PATH=/app/users_db.json
+    volumes:
+      - ./vault:/app/vault
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
