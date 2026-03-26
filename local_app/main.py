@@ -86,9 +86,16 @@ async def invalidate_document(doc_id: str, current_user: dict = Depends(get_curr
 async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     """Autentica al usuario y emite un JWT en Cookie HttpOnly."""
     users = load_users_db()
+    print(f"[DEBUG] Intentando login para: '{form_data.username}'. Usuarios cargados: {len(users)}")
+    
     user = next((u for u in users if u["username"] == form_data.username), None)
     
-    if not user or not verify_password(form_data.password, user["hashed_password"]):
+    if not user:
+        print(f"[DEBUG] Usuario '{form_data.username}' no encontrado.")
+        raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
+        
+    if not verify_password(form_data.password, user["hashed_password"]):
+        print(f"[DEBUG] Contraseña incorrecta para usuario: {form_data.username}")
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
         
     access_token = create_access_token(subject=user["username"])
