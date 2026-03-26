@@ -10,11 +10,24 @@ from fastapi.security import OAuth2PasswordRequestForm
 from core.security import verify_password, create_access_token
 from core.auth import load_users_db, get_current_user_from_cookie
 
+import datetime
 from core.watermark import apply_forensic_watermark
 
 app = FastAPI(title="TrackDocuments - DLP Forensic Vault")
 
-# ... (get_metadata and save_metadata stay the same)
+# Persistencia Minimalista (Forense)
+VAULT_DIR = Path(os.getenv("VAULT_DIR", "vault"))
+METADATA_FILE = VAULT_DIR / "metadata.json"
+
+def get_metadata():
+    if not METADATA_FILE.exists():
+        return {}
+    with open(METADATA_FILE, "r") as f:
+        return json.load(f)
+
+def save_metadata(meta):
+    with open(METADATA_FILE, "w") as f:
+        json.dump(meta, f, indent=4)
 
 @app.get("/share/{doc_id}")
 async def share_document_landing(doc_id: str):
