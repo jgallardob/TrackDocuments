@@ -146,6 +146,13 @@ venv.bak/
 
 #Vault files
 local_app/vault
+*.blob
+metadata.json
+
+# Environment Secrets
+.env
+.env.local
+.env.*.local
 vault/
 *.blob
 metadata.json

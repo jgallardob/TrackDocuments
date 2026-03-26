@@ -1,5 +1,0 @@
-JWT_SECRET=super_secret_key_for_dlp_forensic_12345
-ALGORITHM=HS256
-AWS_REGION=us-east-1
-S3_BUCKET_NAME=dlp-forensic-vault-bucket-2026
-LAMBDA_FUNCTION_NAME=dlp_forensic_watermark_processor
