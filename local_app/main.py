@@ -10,11 +10,24 @@ from fastapi.security import OAuth2PasswordRequestForm
 from core.security import verify_password, create_access_token
 from core.auth import load_users_db, get_current_user_from_cookie
 
+import datetime
 from core.watermark import apply_forensic_watermark
 
 app = FastAPI(title="TrackDocuments - DLP Forensic Vault")
 
-# ... (get_metadata and save_metadata stay the same)
+# Persistencia Minimalista (Forense)
+VAULT_DIR = Path(os.getenv("VAULT_DIR", "vault"))
+METADATA_FILE = VAULT_DIR / "metadata.json"
+
+def get_metadata():
+    if not METADATA_FILE.exists():
+        return {}
+    with open(METADATA_FILE, "r") as f:
+        return json.load(f)
+
+def save_metadata(meta):
+    with open(METADATA_FILE, "w") as f:
+        json.dump(meta, f, indent=4)
 
 @app.get("/share/{doc_id}")
 async def share_document_landing(doc_id: str):
@@ -71,16 +84,24 @@ async def download_document(doc_id: str, current_user: dict = Depends(get_curren
         headers={"Content-Disposition": f"attachment; filename=PROT_{doc['original_name']}"}
     )
 
-@app.delete("/files/{doc_id}")
+@app.delete("/delete/{doc_id}")
 async def invalidate_document(doc_id: str, current_user: dict = Depends(get_current_user_from_cookie)):
     """Soft-Invalidation: Invalida el acceso sin borrar el binario físico."""
     meta = get_metadata()
     if doc_id not in meta:
         raise HTTPException(status_code=404, detail="No encontrado")
     
-    meta[doc_id]["is_valid"] = False
+    doc = meta[doc_id]
+    doc["is_valid"] = False
+    
+    # Auditoría de invalidación
+    timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    doc["invalidated_at"] = timestamp
+    doc["invalidated_by"] = current_user["user_id"]
+    
     save_metadata(meta)
-    return {"message": "Documento invalidado para acceso externo"}
+    print(f"[AUDIT] Documento {doc_id} INVALIDADO por {current_user['user_id']}")
+    return {"message": "Documento invalidado correctamente"}
 
 @app.post("/login")
 async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):

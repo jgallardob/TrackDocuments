@@ -10,11 +10,11 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-# Directorio para la bóveda (volumen persistente recomendado)
+# Asegurar directorio de bóveda (punto de montaje de volumen)
 RUN mkdir -p /app/vault
 
-EXPOSE 8000
+COPY . .
+
+WORKDIR /app/local_app
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

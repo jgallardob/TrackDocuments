@@ -8,13 +8,16 @@ services:
     container_name: dlp_fastapi
     restart: unless-stopped
     volumes:
-      - ./constants.txt:/app/constants.txt:ro
       - ./users_db.json:/app/users_db.json:ro
       - ./local_app/vault:/app/vault
     expose:
       - "8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - USERS_DB_PATH=/app/users_db.json
+      - VAULT_DIR=/app/vault
+    env_file:
+      - .env
 
   nginx_proxy:
     image: nginx:alpine
