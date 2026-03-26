@@ -11,8 +11,8 @@ services:
       - ./constants.txt:/app/constants.txt:ro
       - ./users_db.json:/app/users_db.json:ro
       - ./local_app/vault:/app/vault
-    ports:
-      - "9090:9090"
+    expose:
+      - "8000"
     environment:
       - PYTHONUNBUFFERED=1
 
